@@ -1,0 +1,59 @@
+name: mtm-notification
+
+on:
+  workflow_dispatch:
+    inputs:
+      MATTERMOST_HOST:
+        description: 'The Mattermost host URL'
+        required: true
+      MATTERMOST_TOKEN:
+        description: 'The Mattermost token'
+        required: true
+      MATTERMOST_PORT:
+        description: 'The Mattermost port'
+        required: true
+      MATTERMOST_VERIFY_SSL:
+        description: 'The Mattermost verify SSL'
+        required: true
+      MATTERMOST_MESSAGE:
+        description: 'The Mattermost message'
+        required: true
+      MATTERMOST_CHANNEL_ID:
+        description: 'The Mattermost channel ID to send the message'
+        required: false
+      MATTERMOST_USER_NAME:
+        description: 'The Mattermost username to send the message'
+        required: false
+      MATTERMOST_USER_MAIL:
+        description: 'The Mattermost user email to send the message'
+        required: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    env:
+      MATTERMOST_HOST: ${{ github.event.inputs.MATTERMOST_HOST }}
+      MATTERMOST_TOKEN: ${{ github.event.inputs.MATTERMOST_TOKEN }}
+      MATTERMOST_PORT: ${{ github.event.inputs.MATTERMOST_PORT }}
+      MATTERMOST_VERIFY_SSL: ${{ github.event.inputs.MATTERMOST_VERIFY_SSL }}
+      MATTERMOST_MESSAGE: ${{ github.event.inputs.MATTERMOST_MESSAGE }}
+      MATTERMOST_CHANNEL_ID: ${{ github.event.inputs.MATTERMOST_CHANNEL_ID }}
+      MATTERMOST_USER_NAME: ${{ github.event.inputs.MATTERMOST_USER_NAME }}
+      MATTERMOST_USER_MAIL: ${{ github.event.inputs.MATTERMOST_USER_MAIL }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+
+      - name: install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: send notification
+        run: |
+          python mtm_bot/push_msg.py
